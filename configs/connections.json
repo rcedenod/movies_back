@@ -1,0 +1,8 @@
+{
+    "config" : [{
+        "database": "filmlog",
+        "user": "postgres",
+        "password": "1597",
+        "port": 5432
+    }]
+}
