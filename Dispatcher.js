@@ -9,7 +9,7 @@ const port = 3000;
 require('dotenv').config();
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://localhost:8081",
   credentials: true,
 }));
 app.use(express.json()); // Esto asegura que req.body sea parseado correctamente
@@ -22,9 +22,14 @@ global.database = new (require('./DataBase'))(() => {global.sc = new (require('.
 
   app.post('/login', async (req, res) => {
     if (ss.sessionExist(req)) {
-        return res.status(400).send('Ya tienes una sesión activa');
+      console.log(`El usuario ${req.body.userName} ya tiene una sesion activa`);
+        return res.json({
+            sts: true,
+            msg: "Ya tiene una sesion activa"
+        });;
     }
 
+    console.log(req.body);
     await ss.authenticateUser(req);
 
     if (!ss.sessionObject.status) {
@@ -102,8 +107,8 @@ global.database = new (require('./DataBase'))(() => {global.sc = new (require('.
 app.post('/createUser', async (req, res) => {
   try {
     // 1) Validación de campos obligatorios
-    const { name, last_name, birth_date, email, password, userName } = req.body;
-    if (!name || !last_name || !birth_date || !email || !password || !userName) {
+    const { name, last_name, email, password, userName } = req.body;
+    if (!name || !last_name || !email || !password || !userName) {
       return res
         .status(400)
         .json({ sts: false, msg: 'Faltan datos obligatorios' });
@@ -113,7 +118,7 @@ app.post('/createUser', async (req, res) => {
     const personResult = await database.executeQuery(
       'public',
       'createPerson',
-      [name, last_name, birth_date]
+      [name, last_name]
     );
     if (
       !personResult ||
@@ -136,7 +141,7 @@ app.post('/createUser', async (req, res) => {
       );
 
       const id_user = userResult.rows[0].id_user;
-      const id_profile = 5;
+      const id_profile = 8;
 
       // 4) Insertar en user_profile para asignar perfil
       const userProfileResult = await database.executeQuery(

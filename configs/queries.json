@@ -2,7 +2,7 @@
     "public":
         {
             "getUser" : "select us.id_user, us.email, us.password, pr.fk_id_profile from security.user us INNER JOIN security.user_profile pr ON us.id_user = pr.fk_id_user where us.email = $1",
-            "createPerson" : "INSERT INTO public.person (name, last_name, birth_date) VALUES ($1, $2, $3) RETURNING id_person",
+            "createPerson" : "INSERT INTO public.person (name, last_name) VALUES ($1, $2) RETURNING id_person",
             "createNote": "INSERT INTO notes(title, description, date, private, fk_id_user, content, fk_id_weight) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id_note",
             "updateNote": "UPDATE notes set title = $1, description = $2, private = $3, content = $4, fk_id_weight = $5, date =$6 where id_note = $7",
             "deleteNote": "DELETE FROM notes WHERE id_note = $1",
