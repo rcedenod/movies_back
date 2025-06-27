@@ -35,6 +35,8 @@
             "deleteCategoriesByUser": "DELETE FROM categories WHERE fk_id_user = $1",
             "deleteAuditByUser": "DELETE FROM security.audit WHERE fk_id_user = $1",
 
+            "getMovieRating": "SELECT * FROM review_movies WHERE fk_id_movie = $1 AND fk_id_user  = $2 ORDER BY ABS(EXTRACT(EPOCH FROM (date - $3::timestamp))) ASC LIMIT 1",
+            "getClosestUserRating": "SELECT * FROM review_movies rm WHERE rm.fk_id_user = $1 ORDER BY ABS(EXTRACT(EPOCH FROM (rm.date - $2))) ASC LIMIT 1",
             "insertMovieGenre": "INSERT INTO genres_movies (id_movie_genre, name) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM genres_movies WHERE id_movie_genre = $1)",
             "insertSeriesGenre": "INSERT INTO genres_series (id_series_genre, name) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM genres_series WHERE id_series_genre = $1)",
             "insertMovies": "INSERT INTO movies (id_movie, title, overview, poster, release_date) SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT 1 FROM movies WHERE id_movie = $1)",
