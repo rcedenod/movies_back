@@ -117,22 +117,7 @@ class DataBase {
 
                     if (count >= 6) break; 
                     
-                    if (count === 5) {
-                        const resultCasting = await this.executeQuery("public", "insertMovieCast", [
-                            movie.id,
-                            castData.crew[0].name,
-                            "Director",
-                            "Director",
-                            castData.crew[0].id
-                        ]);
-
-                        if (!resultCasting || !resultCasting.rows) {
-                            console.error("La consulta no devolvio resultados");
-                            throw new Error(`Error al cargar el casting de la pelicula: ${movie.title}`);
-                        }
-
-                    } else {
-                        const resultCasting = await this.executeQuery("public", "insertMovieCast", [
+                    const resultCasting = await this.executeQuery("public", "insertMovieCast", [
                             movie.id,
                             person.name,
                             person.character,
@@ -144,6 +129,27 @@ class DataBase {
                             console.error("La consulta no devolvio resultados");
                             throw new Error(`Error al cargar el casting de la pelicula: ${movie.title}`);
                         }
+
+                    count++;
+                }
+
+                count = 0;
+
+                for (const person of castData.crew) {
+
+                    if (count >= 2) break; 
+
+                    const resultCrew = await this.executeQuery("public", "insertMovieCast", [
+                        movie.id,
+                        castData.crew[0].name,
+                        castData.crew[0].job,
+                        castData.crew[0].known_for_department,
+                        castData.crew[0].id
+                    ]);
+
+                    if (!resultCrew || !resultCrew.rows) {
+                        console.error("La consulta no devolvio resultados");
+                        throw new Error(`Error al cargar el crew de la pelicula: ${movie.title}`);
                     }
 
                     count++;

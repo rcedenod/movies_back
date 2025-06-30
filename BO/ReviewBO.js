@@ -17,19 +17,22 @@ const ReviewBO = class {
           }
     }
 
-    async getUserReviews(params){
+    async getClosestUserRating(params){
         try {
-            const result = await database.executeQuery("public", "getUserReviews", [
-                params.userId
+            const result = await database.executeQuery("public", "getClosestUserRating", [
+                ss.sessionObject.userId,
+                new Date(Date.now()).toISOString(),
+                params.movieId
+
             ]);
         
             if (!result || !result.rows) {
-              return { sts: false, msg: "Error al obtener reviews del usuario" };
+              return { sts: false, msg: "Error al obtener ultimo review del usuario" };
             }
         
-            return { sts: true, data: result.rows };
+            return { sts: true, data: result.rows, rating: result.rows.rating };
           } catch (error) {
-            console.error("Error en getUserReviews:", error);
+            console.error("Error en getClosestUserRating:", error);
             return { sts: false, msg: "Error al ejecutar la consulta" };
           }
     }
@@ -56,29 +59,36 @@ const ReviewBO = class {
         try {
             const result = await database.executeQuery("public", "getMovieRating", [
                 params.movieId,
-                params.userId,
+                ss.sessionObject.userId,
                 new Date(Date.now()).toISOString()
             ]);
 
             if (!result || !result.rows) {
-                console.error("Informacion obtenida getMovieRatings:", result);
                 return { sts: false, msg: "Error al obtener reviews de la pelicula" };
             }
 
-            console.log("Informacion obtenida getMovieRatings:", result);
-            const list = result.rows;
-            const sum = 0;
-            const number = 0;
+            console.log("Informacion obtenida getMovieRatings:", result.rows);
+            let sum = 0;
+            let number = 0;
+            let rating = 0.0;
 
-            list.forEach((element) => {
-                sum += element.rating;
-                number += 1;
+            result.rows.forEach((element) => {
+                rating = element.rating;
+
+                if(parseInt(ss.sessionObject.profile == 8)) {
+                    sum += ( parseFloat(rating) * 20 ) / 100;
+                    number += 1;
+                } else {
+                    sum += parseFloat(rating);
+                    number += 1;
+                }
+                
             })
 
             return { sts: true, msg: "Rating calculado con exito", rating: sum/number}
 
         } catch (error) {
-            console.error("Error en getMovieReviews:", error);
+            console.error("Error en getMovieRatings:", error);
             return { sts: false, msg: "Error al ejecutar la funcion getMovieReviews" };
         }
     }
@@ -134,11 +144,13 @@ const ReviewBO = class {
     async insertReview(params) {
       try {
             if(params.type === 'movie') {
-                const result = await database.executeQuery("public", "insertMovieRating", [
+                const result = await database.executeQuery("public", "insertMovieReview", [
                     ss.sessionObject.userId,
                     params.filmId,
                     params.rating,
-                    params.comment
+                    params.comment,
+                    new Date(Date.now()).toISOString()
+                    
                 ]);
 
                 if (result && result.rowCount > 0) {
@@ -153,7 +165,8 @@ const ReviewBO = class {
                     ss.sessionObject.userId,
                     params.filmId,
                     params.rating,
-                    params.comment
+                    params.comment,
+                    new Date(Date.now()).toISOString()
                 ]);
 
                 if (result && result.rowCount > 0) {
