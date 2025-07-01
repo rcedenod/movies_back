@@ -34,7 +34,7 @@
             "deleteNotesByUser": "DELETE FROM notes WHERE fk_id_user = $1",
             "deleteCategoriesByUser": "DELETE FROM categories WHERE fk_id_user = $1",
             "deleteAuditByUser": "DELETE FROM security.audit WHERE fk_id_user = $1",
-
+            "getMovieReviews": "SELECT * FROM review_movies WHERE fk_id_movie = $1",
             "getMovieRating": "SELECT * FROM review_movies WHERE fk_id_movie = $1 AND fk_id_user  = $2 ORDER BY ABS(EXTRACT(EPOCH FROM (date - $3::timestamp))) ASC LIMIT 1",
             "getClosestUserRating": "SELECT * FROM review_movies rm WHERE rm.fk_id_user = $1 AND rm.fk_id_movie = $3 ORDER BY ABS(EXTRACT(EPOCH FROM (rm.date - $2))) ASC LIMIT 1",
             "insertMovieGenre": "INSERT INTO genres_movies (id_movie_genre, name) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM genres_movies WHERE id_movie_genre = $1)",

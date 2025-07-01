@@ -23,8 +23,10 @@ const ReviewBO = class {
                 ss.sessionObject.userId,
                 new Date(Date.now()).toISOString(),
                 params.movieId
-
             ]);
+
+            console.log("Estoy aqui");
+            
         
             if (!result || !result.rows) {
               return { sts: false, msg: "Error al obtener ultimo review del usuario" };
@@ -39,6 +41,8 @@ const ReviewBO = class {
 
     async getMovieReviews(params){
         try {
+            console.log('Hola movie reviews');
+            
             const result = await database.executeQuery("public", "getMovieReviews", [
                 params.movieId
             ]);
@@ -46,6 +50,9 @@ const ReviewBO = class {
             if (!result || !result.rows) {
               return { sts: false, msg: "Error al obtener reviews de la pelicula" };
             }
+
+            console.log("Resultado reviews ", result.rows);
+            
         
             return { sts: true, data: result.rows };
 
@@ -84,8 +91,17 @@ const ReviewBO = class {
                 }
                 
             })
+            
+            let ratingsend = 0;
+            if(number == 0){
+                ratingsend = "No hay ratings"
+            }
+            else {
+                ratingsend = sum/number;
+            }
+            
 
-            return { sts: true, msg: "Rating calculado con exito", rating: sum/number}
+            return { sts: true, msg: "Rating calculado con exito", rating: ratingsend}
 
         } catch (error) {
             console.error("Error en getMovieRatings:", error);
