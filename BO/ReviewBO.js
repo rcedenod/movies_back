@@ -158,8 +158,82 @@ const ReviewBO = class {
     }
 
     async insertReview(params) {
+    console.log(params.genre_ids);
       try {
             if(params.type === 'movie') {
+                const resultInsert = await database.executeQuery("public", "insertMovies", [
+                    params.filmId,
+                    params.title,
+                    params.overview,
+                    params.poster,
+                    params.release_date
+                ]);
+
+                console.log(resultInsert);
+
+                if (resultInsert) {
+                    console.log("Pelicula insertada en la bdd");
+                } else {
+                    return { sts: false, msg: "No se pudo insertar la pelicula en la bdd" };
+                }
+
+                params.genre_ids.forEach(async genre_id => {
+                    const resultGenres = await database.executeQuery("public", "assignMovieGenre", [
+                        params.filmId,
+                        genre_id.id
+                    ]);
+
+                    if (resultGenres) {
+                        console.log("Genero insertado");
+                    } else {
+                        console.error("La consulta no devolvio resultados");
+                        return { sts: false, msg: `Error al cargar los generos de la pelicula: ${params.title}`};
+                    }
+                })
+
+                let count = 0;
+                for (const person of params.actors) {
+
+                    if (count >= 6) break; 
+                    
+                    const resultCasting = await database.executeQuery("public", "insertMovieCast", [
+                            params.filmId,
+                            person.name,
+                            person.character,
+                            "Actor",
+                            person.id
+                        ]);
+
+                        if (resultCasting) {
+                            console.log('casting insertado');
+                        } else {
+                            console.error("La consulta no devolvio resultados");
+                            return { sts: false, msg:`Error al cargar el casting de la pelicula: ${params.title}`};
+                        }
+
+                    count++;
+                }
+
+                for (const person of params.directors) {
+
+                    const resultCrew = await database.executeQuery("public", "insertMovieCast", [
+                        params.filmId,
+                        person.name,
+                        person.job,
+                        person.known_for_department,
+                        person.id
+                    ]);
+
+                    if (resultCrew) {
+                            console.log('crew insertado');
+                        } else {
+                            console.error("La consulta no devolvio resultados");
+                            return { sts: false, msg:`Error al cargar el crew de la pelicula: ${params.title}`};
+                        }
+
+                    count++;
+                }
+
                 const result = await database.executeQuery("public", "insertMovieReview", [
                     ss.sessionObject.userId,
                     params.filmId,
@@ -177,6 +251,21 @@ const ReviewBO = class {
             }
 
             if(params.type === 'series') {
+                const resultInsert = await database.executeQuery("public", "insertSeries", [
+                    params.filmId,
+                    params.name,
+                    params.overview,
+                    params.first_air_date,
+                    params.poster
+                ]);
+
+                if (resultInsert && resultInsert.rowCount > 0) {
+                    console.log("Serie insertada en la bdd");
+                } else {
+                    return { sts: false, msg: "No se pudo insertar la serie en la bdd" };
+                }
+
+
                 const result = await database.executeQuery("public", "insertSeriesRating", [
                     ss.sessionObject.userId,
                     params.filmId,
