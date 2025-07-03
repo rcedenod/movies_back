@@ -66,7 +66,6 @@ const ReviewBO = class {
         try {
             const result = await database.executeQuery("public", "getMovieRating", [
                 params.movieId,
-                ss.sessionObject.userId,
                 new Date(Date.now()).toISOString()
             ]);
 
@@ -74,34 +73,35 @@ const ReviewBO = class {
                 return { sts: false, msg: "Error al obtener reviews de la pelicula" };
             }
 
-            console.log("Informacion obtenida getMovieRatings:", result.rows);
             let sum = 0;
             let number = 0;
             let rating = 0.0;
 
-            result.rows.forEach((element) => {
+            for (const element of result.rows) {
                 rating = element.rating;
 
-                if(parseInt(ss.sessionObject.profile == 8)) {
-                    sum += ( parseFloat(rating) * 20 ) / 100;
-                    number += 1;
+                const resultUser = await database.executeQuery("security", "getUserByIdSingle", [
+                    element.fk_id_user
+                ]);
+
+                const resultProfile = await database.executeQuery("security", "getUserProfiles", [
+                    resultUser.rows[0].email
+                ]);
+
+                const pid = parseInt(resultProfile.rows[0].fk_id_profile, 10);
+                if (pid === 8) {
+                    sum += (parseFloat(rating) * 20) / 100;
                 } else {
                     sum += parseFloat(rating);
-                    number += 1;
                 }
-                
-            })
-            
-            let ratingsend = 0;
-            if(number == 0){
-                ratingsend = "No hay ratings"
+                number += 1;
             }
-            else {
-                ratingsend = sum/number;
-            }
-            
 
-            return { sts: true, msg: "Rating calculado con exito", rating: ratingsend}
+            const ratingsend = number === 0
+                ? "No hay ratings"
+                : sum / number;
+
+            return { sts: true, msg: "Rating calculado con exito", rating: ratingsend };
 
         } catch (error) {
             console.error("Error en getMovieRatings:", error);
