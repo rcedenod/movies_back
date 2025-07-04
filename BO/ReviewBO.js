@@ -19,20 +19,33 @@ const ReviewBO = class {
 
     async getClosestUserRating(params){
         try {
-            const result = await database.executeQuery("public", "getClosestUserRating", [
-                ss.sessionObject.userId,
-                new Date(Date.now()).toISOString(),
-                params.movieId
-            ]);
+            if(params.isMovie){
+                const result = await database.executeQuery("public", "getClosestMovieRating", [
+                    ss.sessionObject.userId,
+                    new Date(Date.now()).toISOString(),
+                    params.movieId
+                ]);
 
-            console.log("Estoy aqui");
-            
-        
-            if (!result || !result.rows) {
-              return { sts: false, msg: "Error al obtener ultimo review del usuario" };
+                if (!result || !result.rows) {
+                    return { sts: false, msg: "Error al obtener ultimo review del usuario de la pelicula" };
+                }
+
+                return { sts: true, data: result.rows, rating: result.rows.rating };
+
+            } else {
+                const result = await database.executeQuery("public", "getClosestSeriesRating", [
+                    ss.sessionObject.userId,
+                    new Date(Date.now()).toISOString(),
+                    params.movieId
+                ]);
+
+                if (!result || !result.rows) {
+                    return { sts: false, msg: "Error al obtener ultimo review del usuario de la serie" };
+                }  
+
+                return { sts: true, data: result.rows, rating: result.rows.rating };
             }
-        
-            return { sts: true, data: result.rows, rating: result.rows.rating };
+
           } catch (error) {
             console.error("Error en getClosestUserRating:", error);
             return { sts: false, msg: "Error al ejecutar la consulta" };
@@ -40,21 +53,29 @@ const ReviewBO = class {
     }
 
     async getMovieReviews(params){
-        try {
-            console.log('Hola movie reviews');
+        try { 
+            if(params.isMovie) {
+                const result = await database.executeQuery("public", "getMovieReviews", [
+                    params.movieId
+                ]);
             
-            const result = await database.executeQuery("public", "getMovieReviews", [
-                params.movieId
-            ]);
-        
-            if (!result || !result.rows) {
-              return { sts: false, msg: "Error al obtener reviews de la pelicula" };
-            }
+                if (!result || !result.rows) {
+                    return { sts: false, msg: "Error al obtener reviews de la pelicula" };
+                }
 
-            console.log("Resultado reviews ", result.rows);
+                return { sts: true, data: result.rows };
+                
+            } else {
+                const result = await database.executeQuery("public", "getSeriesReviews", [
+                    params.movieId
+                ]);
             
-        
-            return { sts: true, data: result.rows };
+                if (!result || !result.rows) {
+                    return { sts: false, msg: "Error al obtener reviews de la serie" };
+                }
+                
+                return { sts: true, data: result.rows };
+            }
 
           } catch (error) {
             console.error("Error en getMovieReviews:", error);
@@ -64,44 +85,87 @@ const ReviewBO = class {
 
     async getMovieRating(params) {
         try {
-            const result = await database.executeQuery("public", "getMovieRating", [
-                params.movieId,
-                new Date(Date.now()).toISOString()
-            ]);
-
-            if (!result || !result.rows) {
-                return { sts: false, msg: "Error al obtener reviews de la pelicula" };
-            }
-
-            let sum = 0;
-            let number = 0;
-            let rating = 0.0;
-
-            for (const element of result.rows) {
-                rating = element.rating;
-
-                const resultUser = await database.executeQuery("security", "getUserByIdSingle", [
-                    element.fk_id_user
+            
+            if(params.isMovie) {
+                const result = await database.executeQuery("public", "getMovieRating", [
+                    params.movieId,
+                    new Date(Date.now()).toISOString()
                 ]);
 
-                const resultProfile = await database.executeQuery("security", "getUserProfiles", [
-                    resultUser.rows[0].email
-                ]);
-
-                const pid = parseInt(resultProfile.rows[0].fk_id_profile, 10);
-                if (pid === 8) {
-                    sum += (parseFloat(rating) * 20) / 100;
-                } else {
-                    sum += parseFloat(rating);
+                if (!result || !result.rows) {
+                    return { sts: false, msg: "Error al obtener reviews de la pelicula" };
                 }
-                number += 1;
+
+                let sum = 0;
+                let number = 0;
+                let rating = 0.0;
+
+                for (const element of result.rows) {
+                    rating = element.rating;
+
+                    const resultUser = await database.executeQuery("security", "getUserByIdSingle", [
+                        element.fk_id_user
+                    ]);
+
+                    const resultProfile = await database.executeQuery("security", "getUserProfiles", [
+                        resultUser.rows[0].email
+                    ]);
+
+                    const pid = parseInt(resultProfile.rows[0].fk_id_profile, 10);
+                    if (pid === 8) {
+                        sum += (parseFloat(rating) * 20) / 100;
+                    } else {
+                        sum += parseFloat(rating);
+                    }
+                    number += 1;
+                }
+
+                const ratingsend = number === 0
+                    ? "No hay ratings"
+                    : sum / number;
+
+                return { sts: true, msg: "Rating de la pelicula calculado con exito", rating: ratingsend };
+
+            } else {
+                const result = await database.executeQuery("public", "getSeriesRating", [
+                    params.movieId,
+                    new Date(Date.now()).toISOString()
+                ]);
+
+                if (!result || !result.rows) {
+                    return { sts: false, msg: "Error al obtener reviews de la serie" };
+                }
+
+                let sum = 0;
+                let number = 0;
+                let rating = 0.0;
+
+                for (const element of result.rows) {
+                    rating = element.rating;
+
+                    const resultUser = await database.executeQuery("security", "getUserByIdSingle", [
+                        element.fk_id_user
+                    ]);
+
+                    const resultProfile = await database.executeQuery("security", "getUserProfiles", [
+                        resultUser.rows[0].email
+                    ]);
+
+                    const pid = parseInt(resultProfile.rows[0].fk_id_profile, 10);
+                    if (pid === 8) {
+                        sum += (parseFloat(rating) * 20) / 100;
+                    } else {
+                        sum += parseFloat(rating);
+                    }
+                    number += 1;
+                }
+
+                const ratingsend = number === 0
+                    ? "No hay ratings"
+                    : sum / number;
+
+                return { sts: true, msg: "Rating de la serie calculado con exito", rating: ratingsend };
             }
-
-            const ratingsend = number === 0
-                ? "No hay ratings"
-                : sum / number;
-
-            return { sts: true, msg: "Rating calculado con exito", rating: ratingsend };
 
         } catch (error) {
             console.error("Error en getMovieRatings:", error);
@@ -109,56 +173,7 @@ const ReviewBO = class {
         }
     }
 
-    async getSeriesRating(params) {
-        try {
-            const result = await database.executeQuery("public", "getSeriesRating", [
-                params.seriesId,
-                params.userId,
-                new Date(Date.now()).toISOString()
-            ]);
-
-            if (!result || !result.rows) {
-                console.error("Informacion obtenida getSeriesRatings:", result);
-                return { sts: false, msg: "Error al obtener reviews de la pelicula" };
-            }
-
-            console.log("Informacion obtenida getSeriesRatings:", result);
-            const list = result.rows;
-            const sum = 0;
-            const number = 0;
-
-            list.forEach((element) => {
-                sum += element.rating;
-                number += 1;
-            })
-
-            return { sts: true, msg: "Rating calculado con exito", rating: sum/number}
-
-        } catch (error) {
-            console.error("Error en getMovieReviews:", error);
-            return { sts: false, msg: "Error al ejecutar la funcion getMovieReviews" };
-        }
-    }
-
-    async getSeriesReviews(params){
-        try {
-            const result = await database.executeQuery("public", "getSeriesReviews", [
-                params.seriesId
-            ]);
-        
-            if (!result || !result.rows) {
-              return { sts: false, msg: "Error al obtener reviews de la serie" };
-            }
-        
-            return { sts: true, data: result.rows };
-          } catch (error) {
-            console.error("Error en getSeriesReviews:", error);
-            return { sts: false, msg: "Error al ejecutar la consulta" };
-          }
-    }
-
     async insertReview(params) {
-    console.log(params.genre_ids);
       try {
             if(params.type === 'movie') {
                 const resultInsert = await database.executeQuery("public", "insertMovies", [
@@ -259,14 +274,15 @@ const ReviewBO = class {
                     params.poster
                 ]);
 
-                if (resultInsert && resultInsert.rowCount > 0) {
+                if (resultInsert) {
                     console.log("Serie insertada en la bdd");
+
                 } else {
                     return { sts: false, msg: "No se pudo insertar la serie en la bdd" };
                 }
 
 
-                const result = await database.executeQuery("public", "insertSeriesRating", [
+                const result = await database.executeQuery("public", "insertSeriesReview", [
                     ss.sessionObject.userId,
                     params.filmId,
                     params.rating,

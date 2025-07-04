@@ -35,8 +35,11 @@
             "deleteCategoriesByUser": "DELETE FROM categories WHERE fk_id_user = $1",
             "deleteAuditByUser": "DELETE FROM security.audit WHERE fk_id_user = $1",
             "getMovieReviews": "SELECT id_review, fk_id_user, fk_id_movie, rating, comment, date, username FROM review_movies as rm INNER JOIN security.user as us ON rm.fk_id_user = us.id_user WHERE fk_id_movie = $1",
+            "getSeriesReviews": "SELECT id_review, fk_id_user, fk_id_series, rating, comment, date, username FROM review_series as rm INNER JOIN security.user as us ON rm.fk_id_user = us.id_user WHERE fk_id_series = $1",
             "getMovieRating": "SELECT DISTINCT ON (fk_id_user) id_review, fk_id_movie, fk_id_user, date, rating, comment FROM review_movies WHERE fk_id_movie = $1::integer ORDER BY fk_id_user, ABS(EXTRACT(EPOCH FROM (date - $2::timestamp)))",
-            "getClosestUserRating": "SELECT * FROM review_movies rm WHERE rm.fk_id_user = $1 AND rm.fk_id_movie = $3 ORDER BY ABS(EXTRACT(EPOCH FROM (rm.date - $2))) ASC LIMIT 1",
+            "getSeriesRating": "SELECT DISTINCT ON (fk_id_user) id_review, fk_id_series, fk_id_user, date, rating, comment FROM review_series WHERE fk_id_series = $1::integer ORDER BY fk_id_user, ABS(EXTRACT(EPOCH FROM (date - $2::timestamp)))",
+            "getClosestMovieRating": "SELECT * FROM review_movies rm WHERE rm.fk_id_user = $1 AND rm.fk_id_movie = $3 ORDER BY ABS(EXTRACT(EPOCH FROM (rm.date - $2))) ASC LIMIT 1",
+            "getClosestSeriesRating": "SELECT * FROM review_series rs WHERE rs.fk_id_user = $1 AND rs.fk_id_series = $3 ORDER BY ABS(EXTRACT(EPOCH FROM (rs.date - $2))) ASC LIMIT 1",
             "insertMovieGenre": "INSERT INTO genres_movies (id_movie_genre, name) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM genres_movies WHERE id_movie_genre = $1)",
             "insertSeriesGenre": "INSERT INTO genres_series (id_series_genre, name) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM genres_series WHERE id_series_genre = $1)",
             "insertMovies": "INSERT INTO movies (id_movie, title, overview, poster, release_date) SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT 1 FROM movies WHERE id_movie = $1)",
@@ -45,7 +48,10 @@
             "insertSeries": "INSERT INTO series (id_series, name, overview, first_air_date, poster) SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT 1 FROM series WHERE id_series = $1)",
             "assignSeriesGenre": "INSERT INTO series_genres (fk_id_series, fk_id_genre_series) SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM series_genres WHERE fk_id_series = $1 AND fk_id_genre_series = $2)",
             "insertSeriesCast": "INSERT INTO series_cast (fk_id_series, name, role, character, id_person) SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT 1 FROM series_cast WHERE fk_id_series = $1 AND id_person = $5)",
-            "insertMovieReview": "INSERT INTO review_movies (fk_id_user, fk_id_movie, rating, comment, date) values($1,$2,$3,$4,$5)"
+            "insertMovieReview": "INSERT INTO review_movies (fk_id_user, fk_id_movie, rating, comment, date) values($1,$2,$3,$4,$5)",
+            "insertSeriesReview": "INSERT INTO review_series (fk_id_user, fk_id_series, rating, comment, date) values($1,$2,$3,$4,$5)",
+            "getMovieReviewComments": "select * from review_movies_comments where fk_id_review = $1",
+            "insertMovieReviewComment": "insert into review_movies_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4,$5)"
         },
     "security":
         {
