@@ -50,7 +50,7 @@
             "insertSeriesCast": "INSERT INTO series_cast (fk_id_series, name, role, character, id_person) SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT 1 FROM series_cast WHERE fk_id_series = $1 AND id_person = $5)",
             "insertMovieReview": "INSERT INTO review_movies (fk_id_user, fk_id_movie, rating, comment, date) values($1,$2,$3,$4,$5)",
             "insertSeriesReview": "INSERT INTO review_series (fk_id_user, fk_id_series, rating, comment, date) values($1,$2,$3,$4,$5)",
-            "getMovieReviewComments": "select * from review_movies_comments where fk_id_review = $1",
+            "getMovieReviewComments": "select * from public.review_movies_comments rc INNER JOIN security.user us ON us.id_user = rc.fk_id_user where fk_id_review = $1",
             "insertMovieReviewComment": "insert into review_movies_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4)",
             "insertSeriesReviewComment":"insert into review_series_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4)",
             "getSeriesReviewComments": "select * from review_series_comments where fk_id_review = $1"

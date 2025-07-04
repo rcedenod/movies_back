@@ -46,6 +46,7 @@ const CommentBO = class {
                 
                 if (result && result.rowCount > 0) {
                     console.log("Comentario insertado en la bdd");
+                    return { sts: true, msg: "Se pudo insertar el comentario en la review de la pelicula" };
                 } else {
                     return { sts: false, msg: "No se pudo insertar el comentario en la review de la pelicula" };
                 }
@@ -61,6 +62,7 @@ const CommentBO = class {
         
                 if (result && result.rowCount > 0) {
                     console.log("Comentario insertado en la bdd");
+                    return { sts: true, msg: "Se pudo insertar el comentario en la review de la serie" };
                 } else {
                     return { sts: false, msg: "No se pudo insertar el comentario en la review de la serie" };
                 }
