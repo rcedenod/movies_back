@@ -55,7 +55,11 @@
             "insertSeriesReviewComment":"insert into review_series_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4)",
             "getSeriesReviewComments": "select * from review_series_comments where fk_id_review = $1",
             "deleteMovieReviewComment": "DELETE FROM review_movies_comments WHERE id_review_comment = $1",
-            "deleteSeriesReviewComment": "DELETE FROM review_series_comments WHERE id_review_comment = $1"
+            "deleteSeriesReviewComment": "DELETE FROM review_series_comments WHERE id_review_comment = $1",
+            "deleteSeriesReview": "DELETE FROM review_series WHERE id_review = $1",
+            "deleteMovieReview": "DELETE FROM review_movies WHERE id_review = $1",
+            "deleteMovieReviewCommentById": "DELETE FROM review_movies_comments WHERE fk_id_review = $1",
+            "deleteSeriesReviewCommentById": "DELETE FROM review_series_comments WHERE fk_id_review = $1"
         },
     "security":
         {

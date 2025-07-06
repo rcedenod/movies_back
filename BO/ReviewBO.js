@@ -305,6 +305,54 @@ const ReviewBO = class {
       }
     }
 
+    async deleteReview(params) {
+      try { 
+        if (params.type == 'movie'){
+            const resultComment = await database.executeQuery("public", "deleteMovieReviewCommentById", [
+                params.reviewId,
+            ]);
+            if (resultComment && resultComment.rowCount > 0) {
+                console.log("eliminado correctamente comentarios de la review pelicula");
+            } else {
+                return { sts: false, msg: "No se pudo eliminar los comentarios de la review pelicula"};
+            }
+
+            const result = await database.executeQuery("public", "deleteMovieReview", [
+                params.reviewId,
+            ]);
+            if (result && result.rowCount > 0) {
+                return { sts: true, msg: "eliminado correctamente (review pelicula)" };
+            } else {
+                return { sts: false, msg: "No se pudo eliminar el (review pelicula)"};
+            }
+
+        } else if (params.type == 'series') {
+            const resultComment = await database.executeQuery("public", "deleteSeriesReviewCommentById", [
+                params.reviewId,
+            ]);
+            if (resultComment && resultComment.rowCount > 0) {
+                console.log("eliminado correctamente comentarios de la review series");
+            } else {
+                return { sts: false, msg: "No se pudo eliminar los comentarios de la review series"};
+            }
+
+            const result = await database.executeQuery("public", "deleteSeriesReview", [
+                params.reviewId,
+            ]);
+            if (result && result.rowCount > 0) {
+                return { sts: true, msg: "eliminado correctamente (review serie)" };
+            } else {
+                return { sts: false, msg: "No se pudo eliminar el (review serie)" };
+            }
+
+        }
+        
+      } catch (error) {
+        console.error("Error en deleteReview:", error);
+        return { sts: false, msg: "Error al eliminar el review" };
+      }
+    }
+
 }
 
 module.exports = ReviewBO;
