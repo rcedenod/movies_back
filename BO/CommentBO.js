@@ -12,7 +12,7 @@ const CommentBO = class {
                 if (!result || !result.rows) {
                 return { sts: false, msg: "Error en getMovieReviewComments" };
                 }
-            
+                
                 return { sts: true, data: result.rows };
 
             } else if (params.type == 'series') {
@@ -23,7 +23,7 @@ const CommentBO = class {
                 if (!result || !result.rows) {
                 return { sts: false, msg: "Error en getSeriesReviewComments" };
                 }
-            
+                
                 return { sts: true, data: result.rows };
             }
             
@@ -66,14 +66,43 @@ const CommentBO = class {
                 } else {
                     return { sts: false, msg: "No se pudo insertar el comentario en la review de la serie" };
                 }
-            
-                return { sts: true, msg: "Comentario insertado en la review" };
+        
             }
             
           } catch (error) {
             console.error("Error en insertReviewComment:", error);
             return { sts: false, msg: "Error al ejecutar la consulta" };
           }
+    }
+
+    async deleteComment(params) {
+      try { 
+        if (params.type == 'movie'){
+            const result = await database.executeQuery("public", "deleteMovieReviewComment", [
+                params.commentId,
+            ]);
+            if (result && result.rowCount > 0) {
+            return { sts: true, msg: "Comentario eliminado correctamente (review pelicula)" };
+            } else {
+            return { sts: false, msg: "No se pudo eliminar el comentario (review pelicula)"};
+            }
+
+        } else if (params.type == 'series') {
+            const result = await database.executeQuery("public", "deleteSeriesReviewComment", [
+                params.commentId,
+            ]);
+            if (result && result.rowCount > 0) {
+            return { sts: true, msg: "Comentario eliminado correctamente (review serie)" };
+            } else {
+            return { sts: false, msg: "No se pudo eliminar el comentario (review serie)" };
+            }
+
+        }
+        
+      } catch (error) {
+        console.error("Error en deleteComment:", error);
+        return { sts: false, msg: "Error al eliminar el comentario" };
+      }
     }
 
 }

@@ -53,7 +53,9 @@
             "getMovieReviewComments": "select * from public.review_movies_comments rc INNER JOIN security.user us ON us.id_user = rc.fk_id_user where fk_id_review = $1",
             "insertMovieReviewComment": "insert into review_movies_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4)",
             "insertSeriesReviewComment":"insert into review_series_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4)",
-            "getSeriesReviewComments": "select * from review_series_comments where fk_id_review = $1"
+            "getSeriesReviewComments": "select * from review_series_comments where fk_id_review = $1",
+            "deleteMovieReviewComment": "DELETE FROM review_movies_comments WHERE id_review_comment = $1",
+            "deleteSeriesReviewComment": "DELETE FROM review_series_comments WHERE id_review_comment = $1"
         },
     "security":
         {
