@@ -27,7 +27,7 @@
             "getPeople": "SELECT p.id_person, p.name, p.last_name, CONCAT(p.name, ' ', p.last_name) AS fullname FROM person as p",
             "updatePerson": "UPDATE public.person SET name = $1, last_name = $2 WHERE id_person = $3",
             "deletePerson": "DELETE FROM public.person WHERE id_person =  $1",
-            "getPersonById": "SELECT * FROM public.person as p INNER JOIN security.user as u ON u.fk_id_person = p.id_person WHERE u.id_user = $1",
+            "getPersonById": "SELECT * FROM public.person as p INNER JOIN security.user as u ON u.fk_id_person = p.id_person INNER JOIN security.user_profile as up ON up.fk_id_user = u.id_user WHERE u.id_user = $1",
             "getNotesByUser": "SELECT id_note FROM notes WHERE fk_id_user = $1",
             "deleteFavoritesByNoteIds": "DELETE FROM favorites WHERE fk_id_note = ANY($1::int[])",
             "deleteCategoryNoteByNoteIds": "DELETE FROM category_note WHERE fk_id_note = ANY($1::int[])",
@@ -59,7 +59,8 @@
             "deleteSeriesReview": "DELETE FROM review_series WHERE id_review = $1",
             "deleteMovieReview": "DELETE FROM review_movies WHERE id_review = $1",
             "deleteMovieReviewCommentById": "DELETE FROM review_movies_comments WHERE fk_id_review = $1",
-            "deleteSeriesReviewCommentById": "DELETE FROM review_series_comments WHERE fk_id_review = $1"
+            "deleteSeriesReviewCommentById": "DELETE FROM review_series_comments WHERE fk_id_review = $1",
+            "getUserMoviesReview": "SELECT * FROM review_movies as rm INNER JOIN movies as mo ON mo.id_movie = rm.fk_id_movie WHERE fk_id_user = $1 ORDER BY rm.date DESC;"
         },
     "security":
         {
