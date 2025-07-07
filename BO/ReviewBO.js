@@ -354,9 +354,27 @@ const ReviewBO = class {
     }
 
     async getUserReview(params) {
-        const userID = params;
+        const userID = params.userId;
         try {
-            const result = await database.executeQuery("public", "getUserReview", [userID]);
+            console.log("El userid: ", userID);
+            
+            const result = await database.executeQuery("public", "getUserMoviesReview", [userID]);
+
+            if (!result || !result.rows) {
+              return { sts: false, msg: "Error al obtener reviews" };
+            }
+        
+            return { sts: true, data: result.rows };
+          } catch (error) {
+            console.error("Error en getUserReview:", error);
+            return { sts: false, msg: "Error al ejecutar la consulta" };
+          }
+    }
+
+    async getUserSeriesReview(params) {
+        const userID = params.userId;
+        try {
+            const result = await database.executeQuery("public", "getUserSeriesReview", [userID]);
 
             if (!result || !result.rows) {
               return { sts: false, msg: "Error al obtener reviews" };
