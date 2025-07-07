@@ -105,6 +105,47 @@ const CommentBO = class {
       }
     }
 
+    async editComment(params) {
+        try {
+            if (params.type == 'movie') {
+                const result = await database.executeQuery("public", "editMovieReviewComment", [
+                    params.reviewId,
+                    params.comment,
+                    params.date,
+                    new Date(Date.now()).toISOString()
+                ]);
+                console.log(result);
+                if (result && result.rowCount > 0) {
+                    console.log("Comentario editado");
+                    return { sts: true, msg: "Se pudo editar el comentario en la review de la pelicula" };
+                } else {
+                    return { sts: false, msg: "No se pudo editar el comentario en la review de la pelicula" };
+                }
+
+
+            } else if (params.type == 'series') {
+                const result = await database.executeQuery("public", "editSeriesReviewComment", [
+                    params.reviewId,
+                    params.comment,
+                    params.date,
+                    new Date(Date.now()).toISOString()
+                ]);
+        
+                if (result && result.rowCount > 0) {
+                    console.log("Comentario editado");
+                    return { sts: true, msg: "Se pudo editar el comentario en la review de la serie" };
+                } else {
+                    return { sts: false, msg: "No se pudo editar el comentario en la review de la serie" };
+                }
+        
+            }
+            
+          } catch (error) {
+            console.error("Error en insertReviewComment:", error);
+            return { sts: false, msg: "Error al ejecutar la consulta" };
+          }
+    }
+
 }
 
 module.exports = CommentBO;
