@@ -60,7 +60,9 @@
             "deleteMovieReview": "DELETE FROM review_movies WHERE id_review = $1",
             "deleteMovieReviewCommentById": "DELETE FROM review_movies_comments WHERE fk_id_review = $1",
             "deleteSeriesReviewCommentById": "DELETE FROM review_series_comments WHERE fk_id_review = $1",
-            "getUserMoviesReview": "SELECT * FROM review_movies as rm INNER JOIN movies as mo ON mo.id_movie = rm.fk_id_movie WHERE fk_id_user = $1 ORDER BY rm.date DESC;"
+            "getUserMoviesReview": "SELECT * FROM review_movies as rm INNER JOIN movies as mo ON mo.id_movie = rm.fk_id_movie WHERE fk_id_user = $1 ORDER BY rm.date DESC",
+            "editMovieReviewComment": "update review_movies_comments set comment = $2, date = $4 where fk_id_review = $1 AND date = $3::timestamptz",
+            "editSeriesReviewComment": "update review_series_comments set comment = $2, date = $4 where fk_id_review = $1 AND date = $3::timestamptz"
         },
     "security":
         {
