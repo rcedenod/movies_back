@@ -146,7 +146,7 @@ async deleteUsers(params) {
     const movReviewsIds = movReviewsResult.rows.map(r => r.id_review); 
     console.log(`movreviews ${movReviewsIds}`);
 
-    if (movReviewsIds.length() > 0) {
+    if (movReviewsIds.length > 0) {
       console.log('si movies');
       const pgMovReviewsIds = `{${movReviewsIds.join(",")}}`;
 
@@ -175,7 +175,7 @@ async deleteUsers(params) {
 
     console.log(`serrreviews ${serReviewsIds}`);
 
-    if (serReviewsIds.length() > 0) {
+    if (serReviewsIds.length > 0) {
       console.log('si series');
       const pgSerReviewsIds = `{${serReviewsIds.join(",")}}`;
 
@@ -215,7 +215,7 @@ async deleteUsers(params) {
       "deletePerson",
       [personId]
     );
-
+ 
     return { sts: true, msg: "Usuario y sus dependencias eliminados correctamente" };
   } catch (error) {
     console.error("Error en deleteUsers:", error);
