@@ -135,73 +135,81 @@ async deleteUsers(params) {
       return { sts: false, msg: "Faltan datos obligatorios" };
     }
 
-    // 1) Obtener todos los id_note del usuario
-    const notesResult = await database.executeQuery(
+    const movReviewsResult = await database.executeQuery(
       "public",
-      "getNotesByUser",
+      "getMovieReviewsByUser",
       [userId]
     );
-    if (!notesResult || !notesResult.rows) {
-      return { sts: false, msg: "Error al obtener las notas del usuario" };
+    if (!movReviewsResult || !movReviewsResult.rows) {
+      return { sts: false, msg: "Error al obtener las reviews de peliculas del usuario" };
     }
-    const noteIds = notesResult.rows.map(r => r.id_note); // ej. [12, 34, 56]
+    const movReviewsIds = movReviewsResult.rows.map(r => r.id_review); 
+    console.log(`movreviews ${movReviewsIds}`);
 
-    // 2) Borrar dependencias de las notas (favorites y category_note)
-    if (noteIds.length > 0) {
-      // Construir literal de arreglo: "{12,34,56}"
-      const pgNoteIds = `{${noteIds.join(",")}}`;
+    if (movReviewsIds.length() > 0) {
+      console.log('si movies');
+      const pgMovReviewsIds = `{${movReviewsIds.join(",")}}`;
 
-      // a) Eliminar de favorites
       await database.executeQuery(
         "public",
-        "deleteFavoritesByNoteIds",
-        [pgNoteIds]
+        "deleteMovieReviewComments",
+        [pgMovReviewsIds]
       );
 
-      // b) Eliminar de category_note
       await database.executeQuery(
         "public",
-        "deleteCategoryNoteByNoteIds",
-        [pgNoteIds]
+        "deleteMovieReviews",
+        [pgMovReviewsIds]
       );
     }
 
-    // 3) Borrar las notas en sí (entero)
-    await database.executeQuery(
+    const serReviewsResult = await database.executeQuery(
       "public",
-      "deleteNotesByUser",
+      "getSeriesReviewsByUser",
       [userId]
     );
+    if (!serReviewsResult || !serReviewsResult.rows) {
+      return { sts: false, msg: "Error al obtener las reviews de peliculas del usuario" };
+    }
+    const serReviewsIds = serReviewsResult.rows.map(r => r.id_review);
 
-    // 4) Borrar las carpetas (entero)
-    await database.executeQuery(
-      "public",
-      "deleteCategoriesByUser",
-      [userId]
-    );
+    console.log(`serrreviews ${serReviewsIds}`);
 
-    // 5) Borrar historial de auditoría (entero)
+    if (serReviewsIds.length() > 0) {
+      console.log('si series');
+      const pgSerReviewsIds = `{${serReviewsIds.join(",")}}`;
+
+      await database.executeQuery(
+        "public",
+        "deleteSeriesReviewComments",
+        [pgSerReviewsIds]
+      );
+
+      await database.executeQuery(
+        "public",
+        "deleteSeriesReviews",
+        [pgSerReviewsIds]
+      );
+    }
+
     await database.executeQuery(
       "security",
       "deleteAuditByUser",
       [userId]
     );
 
-    // 6) Borrar user_profile (entero)
     await database.executeQuery(
       "security",
       "deleteUserProfileByUserId",
       [userId]
     );
 
-    // 7) Borrar el usuario (entero)
     await database.executeQuery(
       "security",
       "deleteUser",
       [userId]
     );
 
-    // 8) Borrar la persona (entero)
     await database.executeQuery(
       "public",
       "deletePerson",
@@ -214,9 +222,6 @@ async deleteUsers(params) {
     return { sts: false, msg: "Error al eliminar el usuario y sus datos" };
   }
 }
-
-
-
 };
   
   module.exports = UserBO;

@@ -55,7 +55,17 @@
             "insertSeriesReviewComment":"insert into review_series_comments (fk_id_review, fk_id_user, comment, date) values ($1,$2,$3,$4)",
             "getSeriesReviewComments": "select * from review_series_comments where fk_id_review = $1",
             "deleteMovieReviewComment": "DELETE FROM review_movies_comments WHERE id_review_comment = $1",
+
+            "deleteMovieReviewComments": "DELETE FROM review_movies_comments WHERE fk_id_review = ANY($1::int[])",
+
             "deleteSeriesReviewComment": "DELETE FROM review_series_comments WHERE id_review_comment = $1",
+
+            "deleteSeriesReviewComments": "DELETE FROM review_series_comments WHERE id_review_comment = ANY($1::int[])",
+            "getMovieReviewsByUser": "SELECT id_review, fk_id_user, fk_id_movie, rating, comment, date, username FROM review_movies as rm INNER JOIN security.user as us ON rm.fk_id_user = us.id_user WHERE fk_id_user = $1",
+            "getSeriesReviewsByUser": "SELECT id_review, fk_id_user, fk_id_series, rating, comment, date, username FROM review_series as rm INNER JOIN security.user as us ON rm.fk_id_user = us.id_user WHERE fk_id_user = $1",
+            "deleteSeriesReviews": "DELETE FROM review_series WHERE id_review = ANY($1::int[])",
+            "deleteMovieReviews": "DELETE FROM review_movies WHERE id_review = ANY($1::int[])",
+
             "deleteSeriesReview": "DELETE FROM review_series WHERE id_review = $1",
             "deleteMovieReview": "DELETE FROM review_movies WHERE id_review = $1",
             "deleteMovieReviewCommentById": "DELETE FROM review_movies_comments WHERE fk_id_review = $1",
