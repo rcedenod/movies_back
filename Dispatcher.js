@@ -107,8 +107,8 @@ global.database = new (require('./DataBase'))(() => {global.sc = new (require('.
 app.post('/createUser', async (req, res) => {
   try {
     // 1) Validación de campos obligatorios
-    const { name, last_name, email, password, userName } = req.body;
-    if (!name || !last_name || !email || !password || !userName) {
+    const { name, last_name, email, password, userName, isCritic } = req.body;
+    if (!name || !last_name || !email || !password || !userName ) {
       return res
         .status(400)
         .json({ sts: false, msg: 'Faltan datos obligatorios' });
@@ -141,7 +141,7 @@ app.post('/createUser', async (req, res) => {
       );
 
       const id_user = userResult.rows[0].id_user;
-      const id_profile = 8;
+      const id_profile = isCritic ? 8 : 7;
 
       // 4) Insertar en user_profile para asignar perfil
       const userProfileResult = await database.executeQuery(
