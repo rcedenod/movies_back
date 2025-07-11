@@ -1,9 +1,9 @@
 {
   "name": "notes_back",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "Dispatcher.js",
   "scripts": {
-    "start": "node dispatcher.js",
+    "start": "node Dispatcher.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
